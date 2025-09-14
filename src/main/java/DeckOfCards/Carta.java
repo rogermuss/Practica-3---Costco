@@ -20,6 +20,7 @@ public abstract class Carta implements Comparable<Carta> {
      * @param color
      */
     public Carta(int valor, Palo palo, String color) {
+
         this.valor = valor;
         this.palo = palo;
         this.color = color;

@@ -11,7 +11,7 @@ module com.example.practica1_solitario {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
 
-    opens com.example.practica2_solitaire_v2 to javafx.fxml;
+
 
     opens solitaire to javafx.fxml;
     exports solitaire;

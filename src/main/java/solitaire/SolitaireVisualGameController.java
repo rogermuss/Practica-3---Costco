@@ -12,6 +12,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -27,7 +28,11 @@ public class SolitaireVisualGameController {
     private double offsetX, offsetY;
     private Mazo mazo = new Mazo();
     private ArrayList<StackPane> cartasGraficas = new ArrayList<>();
+    Pila<StackPane> pilaPozo = new Pila<>();
+    Pila<StackPane> pilaDescarte = new Pila<>();
 
+    // Undo
+    @FXML Circle undoButton;
 
     // Foundations
     @FXML VBox f1;
@@ -62,17 +67,19 @@ public class SolitaireVisualGameController {
 
     @FXML
     private void initialize() throws IOException {
+        pilaPozo = new Pila<>(52);
+        pilaDescarte = new Pila<>(52);
+
         //Agregar Hover Botones.
         hoverBoton(menu);
         hoverBoton(newGame);
 
         menu.setOnAction(e -> {
-           regrearAlMenu();
+            regrearAlMenu();
         });
         newGame.setOnAction(e -> {
-           reiniciarJuego();
+            reiniciarJuego();
         });
-
 
         // Configurar VBoxes primero
         configurarVBoxes();
@@ -86,10 +93,10 @@ public class SolitaireVisualGameController {
         // Agregar las cartas en forma descendente a mis Tableaus
         agregarCartasAlTableau();
 
-        // Agregar ;as cartas restamtes al pozo
+        // Agregar las cartas restantes al pozo
         agregarCartasAlPozo();
 
-        //
+        // Configurar eventos drag and drop
         configurarCartasAlTomarYSoltar();
     }
 
@@ -282,60 +289,90 @@ public class SolitaireVisualGameController {
             }
         }
 
+        // Limpiar contenedores y pilas
         pozo.getChildren().clear();
+        zonaDescarte.getChildren().clear();
 
+        // Limpiar pilas
+        while (!pilaPozo.isEmpty()) {
+            pilaPozo.pop();
+        }
+        while (!pilaDescarte.isEmpty()) {
+            pilaDescarte.pop();
+        }
+
+        // Agregar cartas restantes solo a la pila
         for (StackPane carta : cartasGraficas) {
-            if(!cartasTableau.contains(carta)) {
-                // QUITAR TODOS LOS MÁRGENES PREVIOS de la carta
+            if (!cartasTableau.contains(carta)) {
+                // Limpiar márgenes anteriores
                 VBox.setMargin(carta, Insets.EMPTY);
 
-                pozo.getChildren().add(carta);
+                // Resetear posición
+                carta.setLayoutX(0);
+                carta.setLayoutY(0);
 
+                pilaPozo.push(carta);
+
+                // Asegurar que esté boca abajo
+                StackPane visibleCard = (StackPane) carta.lookup("#VisibleCard");
+                if (visibleCard != null) {
+                    visibleCard.setVisible(false);
+                }
+
+                // Estilo de carta boca abajo
                 carta.setStyle("-fx-background-color: linear-gradient(to bottom, #1a6fc4, #0d4d8c); " +
                         "-fx-background-radius: 10; " +
                         "-fx-border-color: black; " +
                         "-fx-border-radius: 10; " +
                         "-fx-border-width: 1;");
 
-                StackPane visibleCard = (StackPane) carta.lookup("#VisibleCard");
-                if (visibleCard != null) {
-                    visibleCard.setVisible(false); // Deben estar boca abajo en el pozo
-                }
-
+                // Limpiar eventos previos
                 carta.setOnMouseEntered(null);
                 carta.setOnMouseExited(null);
+                carta.setOnMousePressed(null);
+                carta.setOnMouseDragged(null);
+                carta.setOnMouseReleased(null);
             }
-
         }
-        //Genero un hover para la ultima carta mientras el mismo posea
-        if (!pozo.getChildren().isEmpty()) {
-            StackPane ultimaCarta = (StackPane) pozo.getChildren().get(pozo.getChildren().size() - 1);
 
-            ultimaCarta.setOnMouseEntered(event -> {
-                ultimaCarta.setStyle("-fx-background-color: #1a7cd4; " + // Color más claro
-                        "-fx-background-radius: 10; " +
-                        "-fx-border-color: #0066cc; " +
-                        "-fx-border-radius: 10; " +
-                        "-fx-border-width: 2; " +
-                        "-fx-effect: dropshadow(gaussian, #0066cc, 10, 0.5, 0, 0);");
-            });
+        // Actualizar visualización del pozo
+        actualizarVisualizacionPozo();
+    }
 
-            ultimaCarta.setOnMouseExited(event -> {
-                ultimaCarta.setStyle("-fx-background-color: linear-gradient(to bottom, #1a6fc4, #0d4d8c); " +
-                        "-fx-background-radius: 10; " +
-                        "-fx-border-color: black; " +
-                        "-fx-border-radius: 10; " +
-                        "-fx-border-width: 1;");
-            });
+    //Le agrega hover a la ultima carta del pozo
+    private void actualizarVisualizacionPozo() {
+        pozo.getChildren().clear();
+
+        if (!pilaPozo.isEmpty()) {
+            StackPane cartaSuperior = pilaPozo.peek();
+            pozo.getChildren().add(cartaSuperior);
+
+            pozo.setMaxSize(CARD_WIDTH, CARD_HEIGHT);
+            pozo.setPrefSize(CARD_WIDTH, CARD_HEIGHT);
+
+            agregarHoverPozo(cartaSuperior);
         }
-        pozo.setMaxSize(CARD_WIDTH, CARD_HEIGHT);
-        pozo.setPrefSize(CARD_WIDTH, CARD_HEIGHT);
+    }
+
+    //Configura los eventos drag and drop y a su vez configura la visualizacion
+    private void actualizarVisualizacionDescarte() {
+        zonaDescarte.getChildren().clear();
+
+        if (!pilaDescarte.isEmpty()) {
+            StackPane cartaSuperior = pilaDescarte.peek();
+            zonaDescarte.getChildren().add(cartaSuperior);
+
+            zonaDescarte.setMaxSize(CARD_WIDTH, CARD_HEIGHT);
+            zonaDescarte.setPrefSize(CARD_WIDTH, CARD_HEIGHT);
+
+            configurarEventosCarta(cartaSuperior);
+        }
     }
 
 
 
-    //En base a si se dejo una carta en un slot distinto
-    // se refrescan las propiedades de hover
+    //En base a si se dejo una carta en un contenedor distinto
+    // se vuelven a agregar las propiedades de hover
     public void refreshDraggableCards() {
         for (VBox columna : tableaus) {
             if (!columna.getChildren().isEmpty()) {
@@ -644,6 +681,33 @@ public class SolitaireVisualGameController {
         }
     }
 
+    //Devuelve las cartas a su respectivo contenedor si no se completo la accion de forma valida
+    private void devolverCartasAPosicionOriginal() {
+        if (cartasSeleccionadas.isEmpty()) return;
+
+        // Resetear posición visual de todas las cartas seleccionadas
+        for (StackPane carta : cartasSeleccionadas) {
+            carta.setLayoutX(0);
+            carta.setLayoutY(0);
+            restaurarEstiloNormal(carta);
+        }
+
+        //Si las cartas venían del descarte, devolverlas a la pila de descarte
+        if (contenedorOrigen == zonaDescarte) {
+            //Solo la primera carta debe volver al descarte (la que estaba visible)
+            StackPane cartaDelDescarte = cartasSeleccionadas.get(0);
+
+            //Verificar si la carta ya no está en la pila de descarte
+            if (pilaDescarte.isEmpty() || pilaDescarte.peek() != cartaDelDescarte) {
+                pilaDescarte.push(cartaDelDescarte);
+                actualizarVisualizacionDescarte();
+            }
+        }
+
+        // Si venían de un tableau, ya están en su contenedor original
+
+    }
+
     // Valida si se puede colocar una secuencia de cartas
     private boolean puedeColocarSecuencia(ArrayList<StackPane> secuencia, VBox contenedorDestino) {
         if (secuencia.isEmpty()) return false;
@@ -665,7 +729,14 @@ public class SolitaireVisualGameController {
 
     // Mover una secuencia completa de cartas
     private void moverSecuenciaDeCartas(ArrayList<StackPane> secuencia, javafx.scene.Parent origen, VBox destino) {
-        // Remueve todas las cartas de la secuencia
+        // Si viene del descarte, remover de la pila
+        if (origen instanceof StackPane && origen == zonaDescarte) {
+            for (StackPane carta : secuencia) {
+                moverCartaDelDescarte(carta);
+            }
+        }
+
+        // Remueve todas las cartas de la secuencia del contenedor visual
         for (StackPane carta : secuencia) {
             if (origen instanceof VBox) {
                 ((VBox) origen).getChildren().remove(carta);
@@ -697,15 +768,6 @@ public class SolitaireVisualGameController {
         }
     }
 
-    // Devuelve múltiples cartas a la posición original
-    private void devolverCartasAPosicionOriginal() {
-        for (StackPane carta : cartasSeleccionadas) {
-            carta.setLayoutX(0);
-            carta.setLayoutY(0);
-            restaurarEstiloNormal(carta);
-        }
-    }
-
     //Genera acciones de volteado y animaciones para los objetos del contenedor
     private void verificarYVoltearCarta(javafx.scene.Parent contenedor) {
         if (contenedor instanceof VBox && tableaus.contains((VBox) contenedor)) {
@@ -730,95 +792,110 @@ public class SolitaireVisualGameController {
     //Permite configurar las acciones del pozo
     @FXML
     private void manejarClicPozo() {
-        int acum = 0;
-        ArrayList<StackPane> cartas = new ArrayList<>();
-        if (!pozo.getChildren().isEmpty()) {
-            if (pozo.getChildren().size() >= 3) {
-                for (int i = 0; i < pozo.getChildren().size(); i++) {
-                    if (acum <= 2) {
-                        cartas.add((StackPane) pozo.getChildren().get(i));
+        if (!pilaPozo.isEmpty()) {
+            // Determinar cuántas cartas sacar
+            int cartasASacar = Math.min(3, pilaPozo.size());
+
+            // Sacar cartas del pozo y pasarlas al descarte
+            for (int i = 0; i < cartasASacar; i++) {
+                if (!pilaPozo.isEmpty()) {
+                    StackPane carta = pilaPozo.pop();
+
+                    // Voltear la carta (hacerla visible)
+                    try {
+                        voltearCarta(carta);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    if (acum == 2) {
-                        break;
-                    }
-                    acum++;
-                }
-            }else{
-                for (int i = 0; i < pozo.getChildren().size(); i++) {
-                    cartas.add((StackPane) pozo.getChildren().get(i));
+
+                    // Agregar a la pila de descarte
+                    pilaDescarte.push(carta);
                 }
             }
 
+            // Actualizar visualizaciones
+            actualizarVisualizacionPozo();
+            actualizarVisualizacionDescarte();
 
-            for (StackPane carta : cartas) {
-                pozo.getChildren().remove(carta);
-
-                // Agregar a zona de descarte
-                zonaDescarte.getChildren().add(carta);
-
-                try {
-                    voltearCarta(carta);
-                    configurarEventosCarta(carta);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                // Actualizar hover del pozo
-                if (!pozo.getChildren().isEmpty()) {
-                    StackPane nuevaUltima = (StackPane) pozo.getChildren().get(pozo.getChildren().size() - 1);
-                    agregarHoverPozo(nuevaUltima);
-                }
-            }
         } else {
             // Si el pozo está vacío, reciclar desde descarte
             reciclarDescarte();
         }
-
     }
 
     // Reciclar cartas del descarte al pozo
     private void reciclarDescarte() {
-        ArrayList<StackPane> cartas = new ArrayList<>();
-        if (!zonaDescarte.getChildren().isEmpty()) {
-            for (int i = 0; i < zonaDescarte.getChildren().size(); i++) {
-                cartas.add((StackPane) zonaDescarte.getChildren().get(i));
-            }
+        if (pilaDescarte.isEmpty()) {
+            return;
         }
-        for(StackPane carta : cartas) {
-                zonaDescarte.getChildren().remove(carta);
-                try {
-                    voltearCarta(carta);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
 
-                pozo.getChildren().add(carta);
-                agregarHoverPozo(carta);
+        //Mover todas las cartas del descarte al pozo en orden inverso
+        while (!pilaDescarte.isEmpty()) {
+            StackPane carta = pilaDescarte.pop();
+
+            // Voltear la carta
+            try {
+                StackPane visibleCard = (StackPane) carta.lookup("#VisibleCard");
+                if (visibleCard != null && visibleCard.isVisible()) {
+                    voltearCarta(carta);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // Limpiar eventos de drag and drop
+            carta.setOnMousePressed(null);
+            carta.setOnMouseDragged(null);
+            carta.setOnMouseReleased(null);
+            carta.setOnMouseEntered(null);
+            carta.setOnMouseExited(null);
+
+            // Resetear posición
+            carta.setLayoutX(0);
+            carta.setLayoutY(0);
+
+            // Agregar al pozo
+            pilaPozo.push(carta);
+        }
+
+        // Actualizar visualizaciones
+        actualizarVisualizacionPozo();
+        actualizarVisualizacionDescarte();
+    }
+
+    public void moverCartaDelDescarte(StackPane carta) {
+        // Buscar y remover la carta de la pila de descarte
+        if (!pilaDescarte.isEmpty() && pilaDescarte.peek() == carta) {
+            pilaDescarte.pop();
+            actualizarVisualizacionDescarte();
         }
     }
 
+
     // Hover específico para las cartas del pozo
     private void agregarHoverPozo(StackPane carta) {
-            carta.setOnMouseEntered(event -> {
+        carta.setOnMouseEntered(event -> {
+            // Solo aplicar hover si sigue siendo la carta superior del pozo
+            if (!pilaPozo.isEmpty() && pilaPozo.peek() == carta) {
                 carta.setStyle("-fx-background-color: #1a7cd4;" +
                         "-fx-background-radius: 10;" +
                         "-fx-border-color: #0066cc;" +
                         "-fx-border-radius: 10;" +
                         "-fx-border-width: 2;" +
                         "-fx-effect: dropshadow(gaussian, #0066cc, 10, 0.5, 0, 0);");
-            });
+            }
+        });
 
-            carta.setOnMouseExited(event -> {
-                if (carta.isVisible()) {
-                    carta.setStyle("-fx-background-color: linear-gradient(to bottom, #1a6fc4, #0d4d8c);" +
-                            "-fx-background-radius: 10;" +
-                            "-fx-border-color: black;" +
-                            "-fx-border-radius: 10;" +
-                            "-fx-border-width: 1;");
-                }
-
-            });
-
+        carta.setOnMouseExited(event -> {
+            if (!pilaPozo.isEmpty() && pilaPozo.peek() == carta) {
+                carta.setStyle("-fx-background-color: linear-gradient(to bottom, #1a6fc4, #0d4d8c);" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: black;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-border-width: 1;" +
+                        "-fx-effect: null;");
+            }
+        });
     }
 
 
@@ -870,7 +947,6 @@ public class SolitaireVisualGameController {
     }
 
     //Permite reiniciar el juego al terminar o al hacer click en el boton
-    //"New Game"
     private void reiniciarJuego() {
         try {
             // Limpiar todos los contenedores
@@ -882,6 +958,14 @@ public class SolitaireVisualGameController {
             }
             pozo.getChildren().clear();
             zonaDescarte.getChildren().clear();
+
+            // Limpiar pilas
+            while (!pilaPozo.isEmpty()) {
+                pilaPozo.pop();
+            }
+            while (!pilaDescarte.isEmpty()) {
+                pilaDescarte.pop();
+            }
 
             // Reinicializar el juego
             mazo = new Mazo();

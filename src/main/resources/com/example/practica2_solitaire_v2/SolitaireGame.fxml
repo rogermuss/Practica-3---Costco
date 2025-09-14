@@ -13,6 +13,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
 <AnchorPane fx:id="Tablero" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="solitaire.SolitaireVisualGameController">
    <children>
@@ -75,6 +76,12 @@
             </Button>
         </buttons>
       </ButtonBar>
+      <Circle fx:id="undoButton" fill="#28220f" layoutX="732.0" layoutY="573.0" radius="47.0" stroke="BLACK" strokeType="INSIDE" />
+      <Text fill="WHITE" layoutX="699.0" layoutY="580.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Undo">
+         <font>
+            <Font name="Broadway" size="23.0" />
+         </font>
+      </Text>
 
    </children>
 </AnchorPane>
