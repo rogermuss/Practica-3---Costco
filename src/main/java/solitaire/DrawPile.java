@@ -2,8 +2,6 @@ package solitaire;
 
 import DeckOfCards.CartaInglesa;
 
-import java.util.ArrayList;
-
 /**
  * Modela un mazo de cartas de solitario.
  * @author Cecilia Curlango
@@ -15,7 +13,7 @@ public class DrawPile {
 
     public DrawPile() {
         DeckOfCards.Mazo mazo = new DeckOfCards.Mazo();
-        ArrayList<CartaInglesa> lista = mazo.getCartas();
+        java.util.ArrayList<CartaInglesa> lista = mazo.getCartas();
         cartas = new Pila<>(lista.size());
         for (CartaInglesa c : lista) {
             cartas.push(c);
@@ -34,8 +32,8 @@ public class DrawPile {
     /**
      * Retira N cartas (para repartir a los tableaus al inicio).
      */
-    public ArrayList<CartaInglesa> getCartas(int cantidad) {
-        ArrayList<CartaInglesa> retiradas = new ArrayList<>();
+    public java.util.ArrayList<CartaInglesa> getCartas(int cantidad) {
+        java.util.ArrayList<CartaInglesa> retiradas = new java.util.ArrayList<>();
         for (int i = 0; i < cantidad; i++) {
             retiradas.add(cartas.pop());
         }
@@ -45,8 +43,8 @@ public class DrawPile {
     /**
      * Retira el bloque de cartas configurado (1 o 3 normalmente).
      */
-    public ArrayList<CartaInglesa> retirarCartas() {
-        ArrayList<CartaInglesa> retiradas = new ArrayList<>();
+    public java.util.ArrayList<CartaInglesa> retirarCartas() {
+        java.util.ArrayList<CartaInglesa> retiradas = new java.util.ArrayList<>();
         int maximoARetirar = cartas.size() < cuantasCartasSeEntregan ? cartas.size() : cuantasCartasSeEntregan;
 
         for (int i = 0; i < maximoARetirar; i++) {
@@ -68,7 +66,7 @@ public class DrawPile {
     /**
      * Recarga el monton (cuando se recicla el WastePile).
      */
-    public void recargar(ArrayList<CartaInglesa> cartasAgregar) {
+    public void recargar(java.util.ArrayList<CartaInglesa> cartasAgregar) {
         cartas = new Pila<>(cartasAgregar.size());
         for (CartaInglesa c : cartasAgregar) {
             c.makeFaceDown();

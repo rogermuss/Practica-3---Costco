@@ -49,6 +49,9 @@ public class Pila<T> {
         return tope + 1;
     }
 
+    public int getCapacidad() {
+        return pila.length;
+    }
 
     public T peek() {
         if (isEmpty()) {

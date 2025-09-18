@@ -2,7 +2,6 @@ package solitaire;
 
 import DeckOfCards.CartaInglesa;
 
-import java.util.ArrayList;
 /**
  * Modela el montículo donde se colocan las cartas
  * que se extraen de Draw pile.

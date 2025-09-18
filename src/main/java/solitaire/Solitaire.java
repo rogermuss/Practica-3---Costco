@@ -6,7 +6,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Solitaire extends Application {
-    int x = 1;
 
     //Codigo que actua como el sistema que da inicio al codigo mediante el inicio de la escena menu
     @Override

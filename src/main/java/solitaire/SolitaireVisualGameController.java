@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -22,17 +23,20 @@ import java.util.HashSet;
 public class SolitaireVisualGameController {
     // Reemplazar estas variables de instancia
     private SolitaireManager manager;
+    private SolitaireEstado respaldo = null;
     private StackPane cartaSeleccionada = null;
     private ArrayList<StackPane> cartasSeleccionadas = new ArrayList<>(); // Para múltiples cartas
     private javafx.scene.Parent contenedorOrigen = null; // Cambiar de VBox a Parent
     private double offsetX, offsetY;
     private Mazo mazo = new Mazo();
     private ArrayList<StackPane> cartasGraficas = new ArrayList<>();
-    Pila<StackPane> pilaPozo = new Pila<>();
-    Pila<StackPane> pilaDescarte = new Pila<>();
+    private Pila<StackPane> pilaPozo = new Pila<>();
+    private Pila<StackPane> pilaDescarte = new Pila<>();
+    private Pila<SolitaireEstado> pilaEstado = new Pila<>(300);
 
     // Undo
     @FXML Circle undoButton;
+    @FXML Text undoText;
 
     // Foundations
     @FXML VBox f1;
@@ -74,9 +78,19 @@ public class SolitaireVisualGameController {
         hoverBoton(menu);
         hoverBoton(newGame);
 
+        //El texto no toma los eventos
+        undoText.setMouseTransparent(true);
+
+        //Accion undo
+        undoClick();
+
+        //Agrega hover
+        hoverUndo();
+
         menu.setOnAction(e -> {
             regrearAlMenu();
         });
+
         newGame.setOnAction(e -> {
             reiniciarJuego();
         });
@@ -179,6 +193,162 @@ public class SolitaireVisualGameController {
         }
     }
 
+    //Hover undo
+    public void hoverUndo(){
+        //Hover UNDO
+        undoButton.setOnMouseEntered(e ->{
+            undoButton.setStyle("-fx-background-color: #f0f0f0;" +
+                    "-fx-background-radius: 10;" +
+                    "-fx-border-color: #000000;" +
+                    "-fx-border-radius: 10;" +
+                    "-fx-border-width: 2;" +
+                    "-fx-effect: dropshadow(gaussian, #000000, 10, 0.5, 0, 0);");
+        });
+
+        undoButton.setOnMouseExited(e ->{
+            undoButton.setStyle("-fx-background-color: #28220f;" +
+                    "-fx-background-radius: 10;" +
+                    "-fx-border-color: #000000;" +
+                    "-fx-border-radius: 10;" +
+                    "-fx-border-width: 2;");
+        });
+    }
+
+    //Evento undo al hacer click
+    public void undoClick(){
+        //Regresa un movimiento
+        undoButton.setOnMouseClicked(e -> {
+            if(pilaEstado.isEmpty()) return;
+            //Saco el ultimo estado guardado
+            SolitaireEstado estadoAnterior = pilaEstado.pop();
+
+            //Limpiar estados ACTUALLLLEES
+            for (VBox tableau:tableaus){
+                tableau.getChildren().clear();
+            }
+
+            for(VBox foundation:foundations){
+                foundation.getChildren().clear();
+            }
+
+            while (!pilaDescarte.isEmpty()){
+                pilaDescarte.pop();
+            }
+
+            while(!pilaPozo.isEmpty()){
+                pilaPozo.pop();
+            }
+
+            // Restaurar visibilidad de cartas
+
+            //Indice para cambiar entre el arreglo de cartas visibles.
+            int index = 0;
+            for (StackPane carta : cartasGraficas) {
+                //toma la visibilidad de cada carta y la modifica segun el estado
+                StackPane visibleCard = (StackPane) carta.lookup("#VisibleCard");
+                visibleCard.setVisible(estadoAnterior.getCartasVisibles().get(index));
+
+                // Restaura el estilo normal de la carta dependiendo de su visibilidad
+                if (visibleCard.isVisible()) {
+                    carta.setStyle("-fx-background-color: white; " +
+                            "-fx-background-radius: 10; " +
+                            "-fx-border-color: black; " +
+                            "-fx-border-radius: 10; " +
+                            "-fx-border-width: 1;");
+                } else {
+                    carta.setStyle("-fx-background-color: linear-gradient(to bottom, #1a6fc4, #0d4d8c); " +
+                            "-fx-background-radius: 10; " +
+                            "-fx-border-color: black; " +
+                            "-fx-border-radius: 10; " +
+                            "-fx-border-width: 1;");
+                }
+
+                // Limpiar eventos previos
+                carta.setOnMouseEntered(null);
+                carta.setOnMouseExited(null);
+                carta.setOnMousePressed(null);
+                carta.setOnMouseDragged(null);
+                carta.setOnMouseReleased(null);
+
+                // Resetear posición (Los regresa a posicion 0 y les elimina el offset,
+                // ya se configura despues porque depende de la ubicacion de la carta en el tablero)
+                carta.setLayoutX(0);
+                carta.setLayoutY(0);
+                VBox.setMargin(carta, Insets.EMPTY);
+
+                index++;
+            }
+
+            //Basandome en el indice que le corresponde a cada carta
+            //agregue carta por carta a traves de la coincidencia entre el indice
+            // de la carta en el arreglo general de cartas y el indice que le corresponde
+            // en su respectivo tableau de origen
+            index = 0;
+            for (ArrayList<Integer> listaIndices : estadoAnterior.getFoundationsIndices()) {
+                VBox foundation = foundations.get(index); // tomo el VBox correspondiente
+                for (Integer indice : listaIndices) {
+                    StackPane carta = cartasGraficas.get(indice); // recupero la carta grafica
+                    foundation.getChildren().add(carta);
+                }
+                index++;
+            }
+
+            //Lo mismo, pero en el foundation
+            index = 0;
+            for (ArrayList<Integer> listaIndices : estadoAnterior.getTableausIndices()) {
+                VBox tableau = tableaus.get(index);
+                for (Integer indice : listaIndices) {
+                    StackPane carta = cartasGraficas.get(indice);
+                    tableau.getChildren().add(carta);
+                }
+                index++;
+            }
+
+            //Se agregan de orden inverso para que no se volteen
+            ArrayList<Integer> pozoIndices = estadoAnterior.getPilaPozoIndices();
+            for (int i = pozoIndices.size() - 1; i >= 0; i--) {
+                Integer indice = pozoIndices.get(i);
+                StackPane carta = cartasGraficas.get(indice);
+                pilaPozo.push(carta);
+            }
+
+            //igual que el anterior
+            ArrayList<Integer> descarteIndices = estadoAnterior.getPilaDescarteIndices();
+            for (int i = descarteIndices.size() - 1; i >= 0; i--) {
+                Integer indice = descarteIndices.get(i);
+                StackPane carta = cartasGraficas.get(indice);
+                pilaDescarte.push(carta);
+            }
+
+            // Actualizar visualizaciones (Son el design)
+            actualizarVisualizacionPozo();
+            actualizarVisualizacionDescarte();
+
+            //RESTAURA LOS MARGENES ENTRE CARTAS...
+            for (VBox tableau : tableaus) {
+                for (int i = 0; i < tableau.getChildren().size(); i++) {
+                    StackPane carta = (StackPane) tableau.getChildren().get(i);
+                    VBox.setMargin(carta, new Insets(i * CARD_OFFSET, 0, 0, 0));
+                }
+            }
+
+            // Reconfigurar eventos drag & drop
+            configurarCartasAlTomarYSoltar();
+
+            // Actualizar hover de cartas arrastrables
+            refreshDraggableCards();
+
+        });
+    }
+
+    //Guardado del estado
+    public void undoSave(){
+        SolitaireEstado estado = new SolitaireEstado(tableaus, foundations, pilaPozo,
+                pilaDescarte, cartasGraficas);
+        pilaEstado.push(estado);
+    }
+
+
     //Voltea la carta mientras reestablece ciertas configuraciones de hover segun el caso.
     public void voltearCarta(StackPane cartaStackPane) throws IOException {
 
@@ -275,6 +445,8 @@ public class SolitaireVisualGameController {
             }
         }
     }
+
+
 
 
 
@@ -556,7 +728,7 @@ public class SolitaireVisualGameController {
 
     //Permite arrastrar en su totalidad las cartas en base al punto donde se tome
     private ArrayList<StackPane> obtenerCartasEnSecuencia(StackPane cartaInicial) {
-        ArrayList<StackPane> secuencia = new ArrayList<>();
+        java.util.ArrayList<StackPane> secuencia = new java.util.ArrayList<>();
         javafx.scene.Parent padre = cartaInicial.getParent();
 
         // Solo aplica para tableaus
@@ -590,7 +762,7 @@ public class SolitaireVisualGameController {
     }
 
     // Verifica si una secuencia de cartas es válida
-    private boolean esSecuenciaValida(ArrayList<StackPane> secuencia) {
+    private boolean esSecuenciaValida(java.util.ArrayList<StackPane> secuencia) {
         for (int i = 0; i < secuencia.size() - 1; i++) {
             CartaInglesa cartaActual = obtenerCartaObjeto(secuencia.get(i));
             CartaInglesa cartaSiguiente = obtenerCartaObjeto(secuencia.get(i + 1));
@@ -664,6 +836,10 @@ public class SolitaireVisualGameController {
         VBox contenedorDestino = encontrarContenedorDestino(event.getSceneX(), event.getSceneY());
 
         if (contenedorDestino != null && puedeColocarSecuencia(cartasSeleccionadas, contenedorDestino)) {
+
+            //Se guarda el estado
+            undoSave();
+
             // Mover todas las cartas al nuevo contenedor
             moverSecuenciaDeCartas(cartasSeleccionadas, contenedorOrigen, contenedorDestino);
 
@@ -709,7 +885,7 @@ public class SolitaireVisualGameController {
     }
 
     // Valida si se puede colocar una secuencia de cartas
-    private boolean puedeColocarSecuencia(ArrayList<StackPane> secuencia, VBox contenedorDestino) {
+    private boolean puedeColocarSecuencia(java.util.ArrayList<StackPane> secuencia, VBox contenedorDestino) {
         if (secuencia.isEmpty()) return false;
 
         // Solo valida con la primera carta de la secuencia
@@ -728,7 +904,7 @@ public class SolitaireVisualGameController {
     }
 
     // Mover una secuencia completa de cartas
-    private void moverSecuenciaDeCartas(ArrayList<StackPane> secuencia, javafx.scene.Parent origen, VBox destino) {
+    private void moverSecuenciaDeCartas(java.util.ArrayList<StackPane> secuencia, javafx.scene.Parent origen, VBox destino) {
         // Si viene del descarte, remover de la pila
         if (origen instanceof StackPane && origen == zonaDescarte) {
             for (StackPane carta : secuencia) {
@@ -793,6 +969,7 @@ public class SolitaireVisualGameController {
     @FXML
     private void manejarClicPozo() {
         if (!pilaPozo.isEmpty()) {
+            undoSave();
             // Determinar cuántas cartas sacar
             int cartasASacar = Math.min(3, pilaPozo.size());
 
@@ -971,6 +1148,9 @@ public class SolitaireVisualGameController {
             mazo = new Mazo();
             cartasGraficas.clear();
 
+            while (!pilaEstado.isEmpty()){
+                pilaEstado.pop();
+            }
             generarCartas();
             agregarCartasAlTableau();
             agregarCartasAlPozo();

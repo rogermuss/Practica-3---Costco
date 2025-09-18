@@ -77,7 +77,7 @@
         </buttons>
       </ButtonBar>
       <Circle fx:id="undoButton" fill="#28220f" layoutX="732.0" layoutY="573.0" radius="47.0" stroke="BLACK" strokeType="INSIDE" />
-      <Text fill="WHITE" layoutX="699.0" layoutY="580.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Undo">
+      <Text fx:id="undoText" fill="WHITE" layoutX="699.0" layoutY="580.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Undo">
          <font>
             <Font name="Broadway" size="23.0" />
          </font>
