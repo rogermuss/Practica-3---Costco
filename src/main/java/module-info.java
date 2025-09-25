@@ -13,6 +13,6 @@ module com.example.practica1_solitario {
     requires javafx.graphics;
 
 
-    opens cola_interfaz to javafx.fxml;
-    exports cola_interfaz;
+    opens costco_interfaz to javafx.fxml;
+    exports costco_interfaz;
 }

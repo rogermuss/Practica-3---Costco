@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane fx:controller="cola_interfaz.Interfaz" fx:id="padre" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" />
+<AnchorPane fx:id="padre" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="costco_interfaz.Interfaz">
+    <children>
+        <SplitPane fx:id="mainSplit" dividerPositions="0.5" orientation="VERTICAL" style="-fx-background-color: transparent;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <items>
+                <!-- Panel Superior será cargado dinámicamente -->
+                <AnchorPane fx:id="panelSuperior" minHeight="0.0" minWidth="0.0" />
+                <!-- Panel Inferior será cargado dinámicamente -->
+                <AnchorPane fx:id="panelInferior" minHeight="0.0" minWidth="0.0" />
+            </items>
+        </SplitPane>
+    </children>
+</AnchorPane>
