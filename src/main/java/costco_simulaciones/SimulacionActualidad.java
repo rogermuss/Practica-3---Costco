@@ -19,7 +19,7 @@ public class SimulacionActualidad {
     private Thread hiloAperturaCajas;
     private Timeline timeline = new Timeline();
 
-    public final double DURACION_SIMULACION = 10.0; //Son 600 segundos
+    public final double DURACION_SIMULACION = 600.0; //Son 600 segundos
     private boolean terminado = false;
     private double tiempoSimulacion = 0.0;
     private Cliente clienteTemporal;
