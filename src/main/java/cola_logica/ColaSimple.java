@@ -37,6 +37,11 @@ public class ColaSimple<T> {
         return dato;
     }
 
+    public T peek() {
+        if (isEmpty()) return null;
+        return cola[inicio];
+    }
+
     public boolean isEmpty() {
         return inicio == -1;
     }

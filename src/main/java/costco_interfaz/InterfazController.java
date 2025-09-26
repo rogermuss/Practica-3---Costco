@@ -6,7 +6,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
 import java.io.IOException;
 
-public class Interfaz {
+public class InterfazController {
 
     @FXML
     private AnchorPane padre;

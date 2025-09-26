@@ -11,8 +11,13 @@ module com.example.practica1_solitario {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires javafx.graphics;
+    requires javafx.swing;
+    requires javafx.base;
 
 
     opens costco_interfaz to javafx.fxml;
     exports costco_interfaz;
+
+    opens costco_simulaciones to javafx.fxml;
+    exports costco_simulaciones;
 }

@@ -14,7 +14,7 @@ public class Launcher extends Application {
         stage.setFullScreen(false);
 
         stage.setResizable(false);
-        stage.setTitle("Practica 3 costco");
+        stage.setTitle("Practica 3 Costco");
         stage.setScene(scene);
         stage.show();
     }

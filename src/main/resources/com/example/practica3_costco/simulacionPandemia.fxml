@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="costco_interfaz.SimSuperiorController">
     <children>
@@ -10,8 +13,13 @@
         <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#847f6c" stroke="BLACK" strokeLineJoin="BEVEL" strokeType="INSIDE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
         <!-- Rectángulo interior centrado -->
         <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#5b5d5e" height="203.0" layoutX="-3.2" stroke="BLACK" strokeType="INSIDE" width="649.0" AnchorPane.leftAnchor="-3.0" AnchorPane.rightAnchor="-7.0" AnchorPane.topAnchor="0.0" />
-        <!-- Cola con rectángulo rojo -->
-        <Rectangle fx:id="cola" arcHeight="5.0" arcWidth="5.0" fill="#b15959" height="42.0" stroke="BLACK" strokeType="INSIDE" width="199.0" AnchorPane.leftAnchor="40.0" AnchorPane.topAnchor="80.0" />
+      <StackPane fx:id="filaUnica" layoutX="14.0" layoutY="80.0" prefHeight="42.0" prefWidth="150.0">
+         <children>
+              <!-- Cola con rectángulo rojo -->
+              <Rectangle fx:id="cola" arcHeight="5.0" arcWidth="5.0" fill="#b15959" height="42.0" stroke="BLACK" strokeType="INSIDE" width="199.0" />
+            <Label />
+         </children>
+      </StackPane>
 
         <!-- Círculos púrpuras - fila superior -->
         <Circle fx:id="circulo_0_0" fill="#b97cbf" layoutX="586.0" layoutY="39.0" radius="16.0" stroke="BLACK" strokeType="INSIDE" AnchorPane.rightAnchor="37.19999999999993" AnchorPane.topAnchor="23.0" />
@@ -32,23 +40,84 @@
         <Circle fx:id="circulo_3_0" fill="#b97cbf" layoutX="586.0" layoutY="164.0" radius="16.0" stroke="BLACK" strokeType="INSIDE" AnchorPane.rightAnchor="37.19999999999993" AnchorPane.topAnchor="148.0" />
         <Circle fx:id="circulo_3_1" fill="#b97cbf" layoutX="466.0" layoutY="164.0" radius="16.0" stroke="BLACK" strokeType="INSIDE" AnchorPane.rightAnchor="157.19999999999993" AnchorPane.topAnchor="148.0" />
         <Circle fx:id="circulo_3_2" fill="#b97cbf" layoutX="345.0" layoutY="164.0" radius="16.0" stroke="BLACK" strokeType="INSIDE" AnchorPane.rightAnchor="278.19999999999993" AnchorPane.topAnchor="148.0" />
-
-        <!-- Rectángulos rojos - columna 1 -->
-        <Rectangle fx:id="rect_0_0" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" AnchorPane.rightAnchor="320.0" AnchorPane.topAnchor="23.0" />
-        <Rectangle fx:id="rect_1_0" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" AnchorPane.rightAnchor="320.0" AnchorPane.topAnchor="65.0" />
-        <Rectangle fx:id="rect_2_0" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" AnchorPane.rightAnchor="320.0" AnchorPane.topAnchor="109.0" />
-        <Rectangle fx:id="rect_3_0" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" AnchorPane.rightAnchor="320.0" AnchorPane.topAnchor="148.0" />
-
-        <!-- Rectángulos rojos - columna 2 -->
-        <Rectangle fx:id="rect_0_1" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" AnchorPane.rightAnchor="198.0" AnchorPane.topAnchor="23.0" />
-        <Rectangle fx:id="rect_1_1" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" AnchorPane.rightAnchor="198.0" AnchorPane.topAnchor="65.0" />
-        <Rectangle fx:id="rect_2_1" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" AnchorPane.rightAnchor="198.0" AnchorPane.topAnchor="109.0" />
-        <Rectangle fx:id="rect_3_1" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" AnchorPane.rightAnchor="198.0" AnchorPane.topAnchor="148.0" />
-
-        <!-- Rectángulos rojos - columna 3 -->
-        <Rectangle fx:id="rect_0_2" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" AnchorPane.rightAnchor="81.0" AnchorPane.topAnchor="23.0" />
-        <Rectangle fx:id="rect_1_2" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" AnchorPane.rightAnchor="81.0" AnchorPane.topAnchor="65.0" />
-        <Rectangle fx:id="rect_2_2" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" AnchorPane.rightAnchor="81.0" AnchorPane.topAnchor="109.0" />
-        <Rectangle fx:id="rect_3_2" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" AnchorPane.rightAnchor="81.0" AnchorPane.topAnchor="148.0" />
+      <StackPane fx:id="fila1" layoutX="249.0" layoutY="23.0" prefHeight="32.0" prefWidth="61.0">
+         <children>
+      
+              <!-- Rectángulos rojos - columna 1 -->
+              <Rectangle fx:id="rect_0_0" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" />
+            <Label />
+         </children>
+      </StackPane>
+      <StackPane fx:id="fila12" layoutX="491.0" layoutY="147.0" prefHeight="32.0" prefWidth="61.0">
+         <children>
+            <Rectangle fx:id="rect_0_01" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" />
+            <Label />
+         </children>
+      </StackPane>
+      <StackPane fx:id="fila11" layoutX="491.0" layoutY="106.0" prefHeight="32.0" prefWidth="61.0">
+         <children>
+            <Rectangle fx:id="rect_0_02" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" />
+            <Label />
+         </children>
+      </StackPane>
+      <StackPane fx:id="fila10" layoutX="491.0" layoutY="65.0" prefHeight="32.0" prefWidth="61.0">
+         <children>
+            <Rectangle fx:id="rect_0_03" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" />
+            <Label />
+         </children>
+      </StackPane>
+      <StackPane fx:id="fila9" layoutX="491.0" layoutY="23.0" prefHeight="32.0" prefWidth="61.0">
+         <children>
+            <Rectangle fx:id="rect_0_04" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" />
+            <Label />
+         </children>
+      </StackPane>
+      <StackPane fx:id="fila4" layoutX="249.0" layoutY="148.0" prefHeight="32.0" prefWidth="61.0">
+         <children>
+            <Rectangle fx:id="rect_0_05" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" />
+            <Label />
+         </children>
+      </StackPane>
+      <StackPane fx:id="fila3" layoutX="249.0" layoutY="109.0" prefHeight="32.0" prefWidth="61.0">
+         <children>
+            <Rectangle fx:id="rect_0_06" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" />
+            <Label />
+         </children>
+      </StackPane>
+      <StackPane fx:id="fila2" layoutX="249.0" layoutY="65.0" prefHeight="32.0" prefWidth="61.0">
+         <children>
+            <Rectangle fx:id="rect_0_07" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" />
+            <Label />
+         </children>
+      </StackPane>
+      <StackPane fx:id="fila8" layoutX="369.0" layoutY="147.0" prefHeight="32.0" prefWidth="61.0">
+         <children>
+            <Rectangle fx:id="rect_0_08" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" />
+            <Label />
+         </children>
+      </StackPane>
+      <StackPane fx:id="fila7" layoutX="369.0" layoutY="106.0" prefHeight="32.0" prefWidth="61.0">
+         <children>
+            <Rectangle fx:id="rect_0_09" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" />
+            <Label />
+         </children>
+      </StackPane>
+      <StackPane fx:id="fila6" layoutX="369.0" layoutY="65.0" prefHeight="32.0" prefWidth="61.0">
+         <children>
+            <Rectangle fx:id="rect_0_010" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" />
+            <Label />
+         </children>
+      </StackPane>
+      <StackPane fx:id="fila5" layoutX="369.0" layoutY="23.0" prefHeight="32.0" prefWidth="61.0">
+         <children>
+            <Rectangle fx:id="rect_0_011" arcHeight="5.0" arcWidth="5.0" fill="#a12020" height="32.0" stroke="BLACK" strokeType="INSIDE" width="69.0" />
+            <Label />
+         </children>
+      </StackPane>
+      <Label fx:id="labelTiempo" layoutX="42.0" layoutY="23.0" style="-fx-background-color: #EA899A;" text="Tiempo Simulacion: 0.0 " textAlignment="CENTER" textFill="WHITE">
+         <font>
+            <Font name="Bookman Old Style" size="12.0" />
+         </font>
+      </Label>
     </children>
 </AnchorPane>

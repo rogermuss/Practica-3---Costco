@@ -42,6 +42,11 @@ public class ColaCircular<T> {
         return dato;
     }
 
+    public T peek() {
+        if (isEmpty()) return null;
+        return cola[inicio];
+    }
+
     // Verifica si la cola está vacía
     public boolean isEmpty() {
         return inicio == -1;
