@@ -21,8 +21,8 @@ public class InterfazController {
     private AnchorPane panelInferior;
 
     // Referencias a los controladores de cada panel
-    private SimSuperiorController panelSuperiorController;
-    private SimInferiorController panelInferiorController;
+    private SimPandemiaController panelSuperiorController;
+    private SimActualidadController panelInferiorController;
 
     @FXML
     private void initialize() {
@@ -85,11 +85,11 @@ public class InterfazController {
     }
 
     // Métodos públicos para acceder a los controladores desde tu código de simulación
-    public SimSuperiorController getPanelSuperiorController() {
+    public SimPandemiaController getPanelSuperiorController() {
         return panelSuperiorController;
     }
 
-    public SimInferiorController getPanelInferiorController() {
+    public SimActualidadController getPanelInferiorController() {
         return panelInferiorController;
     }
 }

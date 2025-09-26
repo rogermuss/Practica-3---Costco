@@ -277,6 +277,30 @@ public class SimulacionPandemia {
 
     }
 
+    public ArrayList<Caja> getCajas() {
+        return cajas;
+    }
+
+    public double getTiempoSimulacion() {
+        return tiempoSimulacion;
+    }
+
+    public ArrayList<Cliente> getClientes() {
+        return clientes;
+    }
+
+    public ColaCircular<Cliente> getFilaUnica() {
+        return filaUnica;
+    }
+
+    public ArrayList<ColaCircular<Cliente>> getFilasCajeros() {
+        return filasCajeros;
+    }
+
+    public boolean isTerminado() {
+        return terminado;
+    }
+
 
     public static  void main(String[] args) {
         new JFXPanel();

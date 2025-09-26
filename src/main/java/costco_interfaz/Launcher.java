@@ -16,6 +16,9 @@ public class Launcher extends Application {
         stage.setResizable(false);
         stage.setTitle("Practica 3 Costco");
         stage.setScene(scene);
+        stage.setOnCloseRequest(event -> {
+            System.exit(0);
+        });
         stage.show();
     }
 
