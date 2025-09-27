@@ -178,6 +178,9 @@ public class SimActualidadController {
             if(s.getCajas().get(i).getEstadoDeApertura() == Caja.OPEN) {
                 c.setStyle("-fx-fill: #ffb86c;");
             }
+            else {
+                c.setStyle("-fx-fill: #ffa11f;");
+            }
             i++;
         }
     }

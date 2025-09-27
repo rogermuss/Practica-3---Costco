@@ -182,6 +182,9 @@ public class SimPandemiaController {
             if(s.getCajas().get(i).getEstadoDeApertura() == Caja.OPEN) {
                 c.setStyle("-fx-fill: #c8a2c8;");
             }
+            else {
+                c.setStyle("-fx-fill: #b97cbf;");
+            }
             i++;
         }
     }

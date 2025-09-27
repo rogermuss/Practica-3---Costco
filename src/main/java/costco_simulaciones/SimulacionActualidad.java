@@ -81,7 +81,6 @@ public class SimulacionActualidad {
                     //Termina la simulacion
                     terminado = tiempoSimulacion >= DURACION_SIMULACION;
                     //Tiempo Transcurrido
-                    System.out.println(tiempoSimulacion);
 
                     //Si se termina la simulacion, agregar tiempo a las cajas
                     if(terminado){
@@ -100,20 +99,6 @@ public class SimulacionActualidad {
                             //Tambien calcula el tiempo de uso
                             cajas.get(i).setTiempoFinal(tiempoSimulacion);
                         }
-                        System.out.println("Terminado\n\n");
-                        System.out.println("Tiempo de Simulacion "+tiempoSimulacion+"\n\n");
-                        for(int i = 0; i < cajas.size(); i++){
-                            System.out.println("Caja "+i+
-                                    ": Tiempo Abierta: " + cajas.get(i).getTiempoEnUso()+
-                                    ": Clientes Atendidos: "+cajas.get(i).getAtendidos() + "\n");
-
-                        }
-                        for(int i = 0; i < clientes.size(); i++){
-                            System.out.println("\n ID: "+clientes.get(i).getNumeroCliente()
-                                    + "\nTiempo de Espera: "+clientes.get(i).getTiempoDeEspera()
-                                    + "\nTiempo Pagando: "+clientes.get(i).getTiempoPagando()+"\n\n");
-                        }
-
                     }
                 })
         );
@@ -143,7 +128,7 @@ public class SimulacionActualidad {
                         // Esperar hasta que pase el tiempo de simulación
                         while (!terminado && tiempoSimulacion < tiempoFinPago) {
                             try {
-                                Thread.sleep(50);
+                                Thread.sleep(1);
                             } catch (InterruptedException e) {
                                 return;
                             }
@@ -170,7 +155,6 @@ public class SimulacionActualidad {
     }
 
 
-    //HILO DE ENTRADA DE CLIENTE
     //HILO DE ENTRADA DE CLIENTE
     public void hiloEntrada() {
         Random rand = new Random();
@@ -245,32 +229,62 @@ public class SimulacionActualidad {
     }
 
 
-    //Abre la caja si estan llenas las filas
+    //Abre y cierra las cajas segun las filas
     public void hiloEstadoCajas() {
+        // Array para llevar control del tiempo que cada caja ha estado vacía
+        double[] tiempoVaciaDesde = new double[12];
+        for(int i = 0; i < 12; i++) {
+            tiempoVaciaDesde[i] = -1; // -1 significa que no está vacía o no se ha registrado
+        }
+
         hiloAperturaCajas = new Thread(() -> {
             while (!terminado) {
                 try {
-                    Thread.sleep(1);
+                    Thread.sleep(50); // revisar cada 50ms
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    return;
                 }
 
-                // Solo intentar abrir la siguiente caja si aún hay cajas cerradas
-                if (contadorCajasAbiertas < 12) {
-                    boolean bloqueLleno = true;
+                int abiertas = 0;
+                int llenas = 0;
 
-                    for (int i = 0; i < contadorCajasAbiertas; i++) {
-                        if (filasCajeros.get(i).size() < 4) {
-                            bloqueLleno = false;
-                            break;
+                // contar cajas abiertas y cuantas estan llenas
+                for (int i = 0; i < cajas.size(); i++) {
+                    if (cajas.get(i).getEstadoDeApertura() == Caja.OPEN) {
+                        abiertas++;
+                        if (filasCajeros.get(i).size() > 4) {
+                            llenas++;
                         }
                     }
+                }
 
-                    // Si el bloque de 4 está lleno, abrir la siguiente caja
-                    if (bloqueLleno) {
-                        cajas.get(contadorCajasAbiertas).setEstadoDeApertura(Caja.OPEN);
-                        cajas.get(contadorCajasAbiertas).setTiempoDeApertura(tiempoSimulacion);
-                        contadorCajasAbiertas++;
+                // abrir nueva caja si todas las abiertas estan llenas
+                if (llenas == abiertas && abiertas < 12) {
+                    cajas.get(abiertas).setEstadoDeApertura(Caja.OPEN);
+                    cajas.get(abiertas).setTiempoDeApertura(tiempoSimulacion);
+                    System.out.println(">>> Se abrio la caja " + abiertas + " en t=" + tiempoSimulacion);
+                }
+
+                for (int i = 4; i < cajas.size(); i++) {
+                    if (cajas.get(i).getEstadoDeApertura() == Caja.OPEN) {
+                        boolean cajaVacia = filasCajeros.get(i).isEmpty() &&
+                                cajas.get(i).getEstadoUso() == Caja.EMPTY;
+
+                        if (cajaVacia) {
+                            // Si es la primera vez que detectamos que está vacía, marcar el tiempo
+                            if (tiempoVaciaDesde[i] == -1) {
+                                tiempoVaciaDesde[i] = tiempoSimulacion;
+                            }
+                            // Si ha estado vacía por al menos 2 segundos, cerrarla
+                            else if (tiempoSimulacion - tiempoVaciaDesde[i] >= 2.0) {
+                                cajas.get(i).cerrarCaja(tiempoSimulacion);
+                                tiempoVaciaDesde[i] = -1; // resetear el contador
+                                System.out.println("<<< Se cerro la caja " + i + " en t=" + tiempoSimulacion);
+                            }
+                        } else {
+                            // Si la caja ya no está vacía, resetear el contador
+                            tiempoVaciaDesde[i] = -1;
+                        }
                     }
                 }
             }
